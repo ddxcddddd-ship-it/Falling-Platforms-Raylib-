@@ -1,37 +1,37 @@
 #include "raylib.h"
 #include <iostream>
-#include <vector>
 #define MAX_PLATFORMS 100
+
+
 //initalize variables
 int timer;
 
-int startPlatform;
+int amountofplatforms;
 
 //variable of platform type
-struct platforms {
-	int x = GetRandomValue(0, 800);
-	int y = GetRandomValue(-30, 20);
+struct platform {
+	int x{ 400 };
+	int y{ 300 };
 	int speed{ 1 };
 	int gravity{ 1 };
-};
+}platforms[MAX_PLATFORMS];
 
-std::vector<platforms> platform;
-int amountofPlatforms;
+
 
 void setup() {
 	InitWindow(800, 600, "Falling Platforms");
 
 	SetTargetFPS(60);
 
-	// create first platform
-	platform.push_back(platforms());
-
+	// beginning amount of platforms
+	amountofplatforms = 1;
 	// timer starts at 0
 	timer = 0;
-	
-	// Used for drawing amount of platforms
-	amountofPlatforms = 1;
-
+	// set position of first platform
+	for (int i = 0; i < amountofplatforms; i++) {
+		platforms[i].x = MAX_PLATFORMS;
+		platforms[i].y = MAX_PLATFORMS;
+	}
 
 }
 
@@ -42,47 +42,45 @@ void draw() {
 	// Clear the screen with a color
 	ClearBackground(RAYWHITE);
 
-
-	// Draw the total number of platforms
-	for (int i = 0; i < amountofPlatforms; i++) {
-		DrawRectangle(platform[i].x, platform[i].y, 80, 20, GREEN);
+	// Draw amount of platforms on screen
+	DrawText(TextFormat("Platforms: %i", amountofplatforms), 350, 280, 20, DARKGRAY);
+	
+	// Draw the platforms using a for loop
+	for (int i = 0; i < amountofplatforms; i++) {
+		DrawRectangle(platforms[i].x, platforms[i].y, 80, 50, GRAY);
 	}
-
-	// Draw the total number of platforms
-	DrawText(TextFormat("Platforms: %i", amountofPlatforms), 350, 280, 20, DARKGRAY);
 
 	// End drawing
 	EndDrawing();
 }
 void update() {
+	
+	// Timer increase per frame (60 FPS)
 	timer += 1;
-	// create new platform every 2 seconds
+	// it's true every 2 seconds
 	if (timer > 120) {
-		platform.push_back(platforms());
-		amountofPlatforms += 1;
-		platform[amountofPlatforms].x = GetRandomValue(0, 800);
-		platform[amountofPlatforms].y = GetRandomValue(-30, 20);
-	// Reset timer
+		amountofplatforms += 1;
 		timer = 0;
+	// If the amount of platforms before two seconds was 1 (platforms[0]), 
+	// the new platform's position whould be 2 (platforms[1])
+		platforms[amountofplatforms].x = GetRandomValue(0, 800);
+		platforms[amountofplatforms].y = GetRandomValue(0, 20);
 	}
 	// Acceleration
-	for (int i = 0; i < platform.size(); i++) {
-		platform[i].y += platform[i].speed;
-		platform[i].speed += platform[i].gravity;
+	for (int i = 0; i < amountofplatforms; i++) {
+		platforms[i].y += platforms[i].speed;
+		platforms[i].speed += platforms[i].gravity;
 	}
 }
 
 int main() {
 
 	setup();
-	// Main game loop
-	while (!WindowShouldClose()) { 
+
+	while (!WindowShouldClose()) { // Main game loop
 		draw();
 		update();
 	}
-
-	// Delete vector of platforms
-	platform.clear();
 
 	// Close the window and clean up resources
 	CloseWindow();
